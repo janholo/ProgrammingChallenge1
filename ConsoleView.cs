@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Numerics;
 
 namespace ConsolePong
@@ -10,26 +11,15 @@ namespace ConsolePong
         public char PaddleSymbol { get; } = '%';
 
         private char[][] _field;
-
-        public int _maxCharactersPerLine;
-
         private int _fieldSizeX;
         private int _fieldSizeY;
         private GameSettings _gameSettings;
-        private bool firstDraw = true;
 
-        public ConsoleView(int maxCharactersPerLine, GameSettings gameSettings)
+        public ConsoleView(GameSettings gameSettings)
         {
             _gameSettings = gameSettings;
 
-            if (maxCharactersPerLine <= 0)
-            {
-                throw new ArgumentException("Parameter " + nameof(maxCharactersPerLine) + "has to be greater than 0");
-            }
-            _maxCharactersPerLine = maxCharactersPerLine;
-
-            _fieldSizeX = _maxCharactersPerLine - 2;
-            _fieldSizeY = (int)Math.Round(_fieldSizeX * gameSettings.FieldSize.Y / gameSettings.FieldSize.X);
+            CalcScreenSize();
 
             _field = new char[_fieldSizeY][];
 
@@ -37,9 +27,28 @@ namespace ConsolePong
             {
                 _field[y] = new char[_fieldSizeX];
             }
+        }
 
-            Console.WriteLine("Field Size: " + _fieldSizeX + " x " + _fieldSizeY);
+        private void CalcScreenSize()
+        {
+            var maxCharactersPerLine = 80;
+            try
+            {
+                maxCharactersPerLine = Console.WindowWidth - 1;
+            }
+            catch (IOException)
+            {
+                Console.WriteLine($"Cannot get Console.WindowWidth -> use default width of {maxCharactersPerLine}");
+            }
 
+            _fieldSizeX = maxCharactersPerLine - 2;
+            _fieldSizeY = (int)Math.Round(_fieldSizeX * _gameSettings.FieldSize.Y / _gameSettings.FieldSize.X);
+
+            if(_fieldSizeY + 3 > Console.WindowHeight)
+            {
+                _fieldSizeY = Console.WindowHeight - 4;
+                _fieldSizeX = (int)Math.Round(_fieldSizeY * _gameSettings.FieldSize.X / _gameSettings.FieldSize.Y);
+            }
         }
 
         public void Show(GameState gamestate)
@@ -50,7 +59,7 @@ namespace ConsolePong
             SetPaddle(gamestate.RightPaddle);
             SetBall(gamestate.Ball);
 
-            DrawField();
+            DrawField(gamestate);
         }
 
         private void SetPaddle(Paddle paddle)
@@ -62,7 +71,15 @@ namespace ConsolePong
             {
                 for (int x = paddleXStart; x <= paddleXEnd; x++)
                 {
-                    _field[y][x] = PaddleSymbol;
+                    try
+                    {
+                        _field[y][x] = PaddleSymbol;
+                    }
+                    catch(IndexOutOfRangeException)
+                    {
+                        // do nothing
+                    }
+                    
                 }
             }
         }
@@ -97,14 +114,13 @@ namespace ConsolePong
             return new Vector2(x, y) / new Vector2(_fieldSizeX, _fieldSizeY) * _gameSettings.FieldSize;
         }
 
-        private void DrawField()
+        private void DrawField(GameState gamestate)
         {
-            if(!firstDraw)
-            {
-                Console.SetCursorPosition(0, Console.CursorTop - (_fieldSizeY + 3));
-            }
+            Console.SetCursorPosition(0, 0);
             
-            Console.WriteLine(new string(WallSymbol, _maxCharactersPerLine));
+            Console.WriteLine($"Fps: {gamestate.Fps:F0} Res: {_fieldSizeX}x{_fieldSizeY}");
+
+            Console.WriteLine(new string(WallSymbol, _fieldSizeX+2));
 
             for (int line = _fieldSizeY - 1; line >= 0; line--)
             {
@@ -113,9 +129,7 @@ namespace ConsolePong
                 Console.WriteLine(WallSymbol);
             }
 
-            Console.WriteLine(new string(WallSymbol, _maxCharactersPerLine));
-
-            firstDraw = false;
+            Console.WriteLine(new string(WallSymbol, _fieldSizeX+2));
         }
 
         private void ClearField()

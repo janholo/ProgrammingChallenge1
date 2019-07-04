@@ -22,22 +22,38 @@ namespace ConsolePong
 
         public Ball Ball { get; private set; }
 
+        public float Fps { get; private set; }
+
+
         public void Update(TimeSpan deltaTime, float leftPaddleVelocity, float rightPaddleVelocity)
         {
-            Console.WriteLine(deltaTime.TotalSeconds);
+            var currentFps = 1.0f / (float)deltaTime.TotalSeconds;
+            Fps = Fps * 0.9f + currentFps * 0.1f;
 
+            UpdateBall(deltaTime);
+
+            LeftPaddle = UpdatePaddle(deltaTime, LeftPaddle, leftPaddleVelocity);
+            RightPaddle = UpdatePaddle(deltaTime, RightPaddle, rightPaddleVelocity);
+        }
+
+        private void UpdateBall(TimeSpan deltaTime)
+        {
             var ballPos = Ball.Position + Ball.VelocityInUnitsPerSecond * (float)deltaTime.TotalSeconds;
             Ball = new Ball(ballPos, Ball.VelocityInUnitsPerSecond);
 
-            var leftPaddleVelocityCapped = Math.Min(Math.Max(leftPaddleVelocity, -GameSettings.MaxPaddleVelocity), GameSettings.MaxPaddleVelocity);
-            var paddleLeftPos = LeftPaddle.Position + new Vector2(0.0f, leftPaddleVelocityCapped * (float)deltaTime.TotalSeconds);
-            LeftPaddle = new Paddle(paddleLeftPos);
+            // check collision with walls
 
-            var rightPaddleVelocityCapped = Math.Min(Math.Max(rightPaddleVelocity, -GameSettings.MaxPaddleVelocity), GameSettings.MaxPaddleVelocity);
-            var paddleRightPos = RightPaddle.Position + new Vector2(0.0f, rightPaddleVelocityCapped * (float)deltaTime.TotalSeconds);
-            RightPaddle = new Paddle(paddleRightPos);
+            // check collision with paddles
+        }
 
+        private Paddle UpdatePaddle(TimeSpan deltaTime, Paddle paddle, float paddleVelocity)
+        {
+            var paddleVelocityCapped = Math.Min(Math.Max(paddleVelocity, -GameSettings.MaxPaddleVelocity), GameSettings.MaxPaddleVelocity);
+            var paddlePos = paddle.Position + new Vector2(0.0f, paddleVelocityCapped * (float)deltaTime.TotalSeconds);
 
+            paddlePos.Y = Math.Min(Math.Max(paddlePos.Y, GameSettings.PaddleSize.Y * 0.5f), GameSettings.FieldSize.Y - GameSettings.PaddleSize.Y * 0.5f);
+
+            return new Paddle(paddlePos);
         }
     }
 }

@@ -8,10 +8,25 @@ namespace ConsolePong
     {
         static void Main(string[] args)
         {
+            Console.Clear();
+            Console.CursorVisible = false;
+
+            try
+            {
+                Run();
+            }
+            finally
+            {
+                Console.CursorVisible = true;
+            }
+        }
+
+        private static void Run()
+        {
             var gamestate = new GameState(new GameSettings()
             {
                 FieldSize = new Vector2(10.0f, 2.0f),
-                InitialBallVelocity = 0.1f,
+                InitialBallVelocity = 0.0f,
                 MaxOutgoingAngleToHorizontal = 60.0f,
                 VelocityIncrementPerPaddleCollision = 0.1f,
                 BallSize = 0.2f,
@@ -19,22 +34,11 @@ namespace ConsolePong
                 MaxPaddleVelocity = 1.0f
             });
 
-            var consoleFieldWidth = 80;
-            try
-            {
-                consoleFieldWidth = Console.WindowWidth - 1;
-            }
-            catch (IOException)
-            {
-                Console.WriteLine($"Cannot get Console.WindowWidth -> use default width of {consoleFieldWidth}");
-            }
-
-
-            var consoleView = new ConsoleView(consoleFieldWidth, gamestate.GameSettings);
+            var consoleView = new ConsoleView(gamestate.GameSettings);
 
             var lastFrame = DateTime.Now;
 
-            while(true)
+            while (true)
             {
                 consoleView.Show(gamestate);
                 var now = DateTime.Now;
@@ -42,25 +46,22 @@ namespace ConsolePong
                 var leftPaddleVelocity = 0.0f;
                 var rightPaddleVelocity = 0.0f;
 
-                if(Console.KeyAvailable)
+                if (Console.KeyAvailable)
                 {
                     var key = Console.ReadKey(true);
-                    Console.WriteLine(key.Key);
-                    if(key.Key == ConsoleKey.DownArrow)
+                    if (key.Key == ConsoleKey.DownArrow)
                     {
                         leftPaddleVelocity = -0.5f;
                     }
-                    if(key.Key == ConsoleKey.UpArrow)
+                    if (key.Key == ConsoleKey.UpArrow)
                     {
                         leftPaddleVelocity = 0.5f;
-                    }                    
+                    }
                 }
 
                 gamestate.Update(now - lastFrame, leftPaddleVelocity, rightPaddleVelocity);
                 lastFrame = now;
             }
-
-
         }
     }
 }
