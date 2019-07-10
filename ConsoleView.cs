@@ -106,19 +106,21 @@ namespace ConsolePong
         {
             var consoleCoords = coords / _gameSettings.FieldSize * new Vector2(_fieldSizeX, _fieldSizeY);
 
+            consoleCoords -= new Vector2(0.5f, 0.5f);
+
             return ((int)Math.Round(consoleCoords.X), (int)Math.Round(consoleCoords.Y));
         }
 
         private Vector2 ToGameCoordinates(int x, int y)
         {
-            return new Vector2(x, y) / new Vector2(_fieldSizeX, _fieldSizeY) * _gameSettings.FieldSize;
+            return new Vector2(x + 0.5f, y + 0.5f) / new Vector2(_fieldSizeX, _fieldSizeY) * _gameSettings.FieldSize;
         }
 
         private void DrawField(GameState gamestate)
         {
             Console.SetCursorPosition(0, 0);
             
-            Console.WriteLine($"Fps: {gamestate.Fps:F0} Res: {_fieldSizeX}x{_fieldSizeY}");
+            Console.WriteLine($"Fps: {gamestate.Fps:F0} Res: {_fieldSizeX}x{_fieldSizeY} Ball: {gamestate.Ball.Position.X} {gamestate.Ball.Position.Y}");
 
             Console.WriteLine(new string(WallSymbol, _fieldSizeX+2));
 

@@ -26,7 +26,7 @@ namespace ConsolePong
             var gamestate = new GameState(new GameSettings()
             {
                 FieldSize = new Vector2(10.0f, 2.0f),
-                InitialBallVelocity = 0.0f,
+                InitialBallVelocity = 0.5f,
                 MaxOutgoingAngleToHorizontal = 60.0f,
                 VelocityIncrementPerPaddleCollision = 0.1f,
                 BallSize = 0.2f,
