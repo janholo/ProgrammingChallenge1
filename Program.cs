@@ -1,12 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
+using ConsolePong.GameLogic;
+using ConsolePong.View;
 
 namespace ConsolePong
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.Clear();
             Console.CursorVisible = false;
@@ -23,7 +24,7 @@ namespace ConsolePong
 
         private static void Run()
         {
-            var gamestate = new GameState(new GameSettings()
+            var gameSettings = new GameSettings()
             {
                 FieldSize = new Vector2(10.0f, 2.0f),
                 InitialBallVelocity = 0.5f,
@@ -31,37 +32,17 @@ namespace ConsolePong
                 VelocityIncrementPerPaddleCollision = 0.1f,
                 BallSize = 0.2f,
                 PaddleSize = new Vector2(0.2f, 0.5f),
-                MaxPaddleVelocity = 1.0f
-            });
+                MaxPaddleVelocity = 4.0f
+            };
 
-            var consoleView = new ConsoleView(gamestate.GameSettings);
+            var consoleView = new ConsoleView(gameSettings);
 
-            var lastFrame = DateTime.Now;
+            var runner = new GameRunner();
 
-            while (true)
-            {
-                consoleView.Show(gamestate);
-                var now = DateTime.Now;
+            runner.Run(gameSettings, consoleView, new Controller.JanReinhardt.NaiveController(), new Controller.JanReinhardt.KeyboardController());
 
-                var leftPaddleVelocity = 0.0f;
-                var rightPaddleVelocity = 0.0f;
-
-                if (Console.KeyAvailable)
-                {
-                    var key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.DownArrow)
-                    {
-                        leftPaddleVelocity = -0.5f;
-                    }
-                    if (key.Key == ConsoleKey.UpArrow)
-                    {
-                        leftPaddleVelocity = 0.5f;
-                    }
-                }
-
-                gamestate.Update(now - lastFrame, leftPaddleVelocity, rightPaddleVelocity);
-                lastFrame = now;
-            }
+            Console.WriteLine("Press any key to exit:");
+            Console.ReadKey();
         }
     }
 }
