@@ -19,10 +19,26 @@ namespace ConsolePong.GameLogic
                 var deltaTime = now - lastFrame;
                 lastFrame = now;
 
-                var leftPaddleVelocity = leftController.Update(gameState, Player.Left);
+                float leftPaddleVelocity = 0.0f;
+                try
+                {
+                    leftPaddleVelocity = leftController.Update(gameState, Player.Left);
+                }
+                catch (Exception)
+                {
+                    // Update method failed. dont move the paddle
+                }
 
-                var rightPaddleVelocity = rightController.Update(gameState, Player.Right);
-
+                float rightPaddleVelocity = 0.0f;
+                try
+                {
+                    rightPaddleVelocity = rightController.Update(gameState, Player.Right);
+                }
+                catch (Exception)
+                {
+                    // Update method failed. dont move the paddle
+                }
+                
                 gameState = gameState.Update(deltaTime, leftPaddleVelocity, rightPaddleVelocity);
 
                 if (gameState.GameResult != GameResult.Pending)
