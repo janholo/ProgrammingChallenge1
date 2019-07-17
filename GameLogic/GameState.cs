@@ -12,40 +12,51 @@ namespace ConsolePong.GameLogic
             LeftPaddle = new Paddle(new Vector2(gameSettings.PaddleSize.X, gameSettings.FieldSize.Y * 0.5f));
             RightPaddle = new Paddle(new Vector2(gameSettings.FieldSize.X - gameSettings.PaddleSize.X, gameSettings.FieldSize.Y * 0.5f));
 
-            Ball = new Ball(gameSettings.FieldSize * 0.5f, Helpers.RotatedUnitVector((float)Math.PI / 6.0f) * gameSettings.InitialBallVelocity);
+            Ball = new Ball(gameSettings.FieldSize * 0.5f, Helpers.RotatedUnitVector((float)Math.PI / 18.0f) * gameSettings.InitialBallVelocity);
 
             GameResult = GameResult.Pending;
         }
 
+        public GameState(GameSettings gameSettings, GameResult result, Paddle leftPaddle, Paddle rightPaddle, Ball ball, float fps)
+        {
+            GameSettings = gameSettings;
+            GameResult = result;
+            LeftPaddle = leftPaddle;
+            RightPaddle = rightPaddle;
+            Ball = ball;
+            Fps = fps;
+        }
+
         public GameSettings GameSettings { get; }
 
-        public GameResult GameResult { get; private set; }
+        public GameResult GameResult { get; }
 
-        public Paddle LeftPaddle { get; private set; }
-        public Paddle RightPaddle { get; private set; }
+        public Paddle LeftPaddle { get; }
+        public Paddle RightPaddle { get; }
 
-        public Ball Ball { get; private set; }
+        public Ball Ball { get; }
 
-        public float Fps { get; private set; }
-
-
-        public void Update(TimeSpan deltaTime, float leftPaddleVelocity, float rightPaddleVelocity)
+        public float Fps { get; }
+        
+        public GameState Update(TimeSpan deltaTime, float leftPaddleVelocity, float rightPaddleVelocity)
         {
             if(GameResult != GameResult.Pending)
             {
-                return;
+                return this;
             }
 
             var currentFps = 1.0f / (float)deltaTime.TotalSeconds;
-            Fps = Fps * 0.9f + currentFps * 0.1f;
+            var newFps = Fps * 0.9f + currentFps * 0.1f;
 
-            LeftPaddle = UpdatePaddle(deltaTime, LeftPaddle, leftPaddleVelocity);
-            RightPaddle = UpdatePaddle(deltaTime, RightPaddle, rightPaddleVelocity);
+            var newLeftPaddle = UpdatePaddle(deltaTime, LeftPaddle, leftPaddleVelocity);
+            var newRightPaddle = UpdatePaddle(deltaTime, RightPaddle, rightPaddleVelocity);
 
-            GameResult = UpdateBall(deltaTime);
+            var (newBall, newGameResult) = UpdateBall(deltaTime);
+
+            return new GameState(GameSettings, newGameResult, newLeftPaddle, newRightPaddle, newBall, newFps);
         }
 
-        private GameResult UpdateBall(TimeSpan deltaTime)
+        private (Ball, GameResult) UpdateBall(TimeSpan deltaTime)
         {
             var ballPos = Ball.Position + Ball.VelocityInUnitsPerSecond * (float)deltaTime.TotalSeconds;
             var ballVelocity = Ball.VelocityInUnitsPerSecond;
@@ -62,30 +73,47 @@ namespace ConsolePong.GameLogic
                 ballVelocity.Y = -ballVelocity.Y;
             }
 
-            // check left and right wall if game os over
+            // check left and right wall if game is over
             if (ballPos.X > GameSettings.FieldSize.X - GameSettings.BallSize * 0.5f)
             {
-                return GameResult.LeftPlayerWon;
+                return (Ball, GameResult.LeftPlayerWon);
             }
             else if (ballPos.X < GameSettings.BallSize * 0.5f)
             {
-                return GameResult.RightPlayerWon;
+                return (Ball, GameResult.RightPlayerWon);
             }
 
             // check collision with paddles
             if (BallCollidesWithPaddle(ballPos, LeftPaddle))
             {
                 ballPos.X = LeftPaddle.Position.X + (GameSettings.PaddleSize.X + GameSettings.BallSize) * 0.5f;
-                ballVelocity.X = ballVelocity.X < 0.0f ? -ballVelocity.X : ballVelocity.X;
+                ballVelocity = CalcVelocityAfterBounce(LeftPaddle);
             }
             else if (BallCollidesWithPaddle(ballPos, RightPaddle))
             {
                 ballPos.X = RightPaddle.Position.X - (GameSettings.PaddleSize.X + GameSettings.BallSize) * 0.5f;
-                ballVelocity.X = ballVelocity.X > 0.0f ? -ballVelocity.X : ballVelocity.X;
+                ballVelocity = CalcVelocityAfterBounce(RightPaddle);
             }
 
-            Ball = new Ball(ballPos, ballVelocity);
-            return GameResult.Pending;
+            var ball = new Ball(ballPos, ballVelocity);
+            return (ball, GameResult.Pending);
+        }
+
+        private Vector2 CalcVelocityAfterBounce(Paddle paddle)
+        {
+            var newVelocity = Ball.VelocityInUnitsPerSecond.Length() + GameSettings.VelocityIncrementPerPaddleCollision;
+            var offsetToPaddle = (Ball.Position.Y - paddle.Position.Y) / ((GameSettings.PaddleSize.Y + GameSettings.BallSize) * 0.5f);
+            var angleInRadians = offsetToPaddle * GameSettings.MaxAngleToHorizontalAfterPaddleBounceInDegrees * (float)Math.PI / 180.0f;
+
+            var velocity = Helpers.RotatedUnitVector(angleInRadians) * newVelocity;
+
+            // A small hack to mirror the velocity if this is the right paddle
+            if (paddle == RightPaddle)
+            {
+                velocity.X = -velocity.X;
+            }
+
+            return velocity;
         }
 
         private bool BallCollidesWithPaddle(Vector2 ballPos, Paddle paddle)

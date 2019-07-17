@@ -7,9 +7,11 @@ namespace ConsolePong.View
 {
     internal class ConsoleView : IView
     {
-        public char WallSymbol { get; } = '#';
-        public char BallSymbol { get; } = '@';
-        public char PaddleSymbol { get; } = '%';
+        public char WallSymbol => '#';
+        public char BallSymbol => '@';
+        public char PaddleSymbol => '%';
+
+        public float CharWidthToLineHeightRatio = 0.472f;
 
         private readonly char[][] _field;
         private int _fieldSizeX;
@@ -43,12 +45,13 @@ namespace ConsolePong.View
             }
 
             _fieldSizeX = maxCharactersPerLine - 2;
-            _fieldSizeY = (int)Math.Round(_fieldSizeX * _gameSettings.FieldSize.Y / _gameSettings.FieldSize.X);
+            var sizeY = _fieldSizeX * _gameSettings.FieldSize.Y / _gameSettings.FieldSize.X;
+            _fieldSizeY = (int)Math.Round(sizeY * CharWidthToLineHeightRatio);
 
             if (_fieldSizeY + 3 > Console.WindowHeight)
             {
                 _fieldSizeY = Console.WindowHeight - 4;
-                _fieldSizeX = (int)Math.Round(_fieldSizeY * _gameSettings.FieldSize.X / _gameSettings.FieldSize.Y);
+                _fieldSizeX = (int)Math.Round(_fieldSizeY * (_gameSettings.FieldSize.X / _gameSettings.FieldSize.Y) / CharWidthToLineHeightRatio);
             }
         }
 
@@ -56,11 +59,13 @@ namespace ConsolePong.View
         {
             ClearField();
 
-            if (gameState.GameResult != GameResult.LeftPlayerWon)
+            SetFps(gameState.Fps);
+
+            if (gameState.GameResult == GameResult.LeftPlayerWon)
             {
                 SetWinnerMessage($"{leftControllerName} (Left) won");
             }
-            else if (gameState.GameResult != GameResult.RightPlayerWon)
+            else if (gameState.GameResult == GameResult.RightPlayerWon)
             {
                 SetWinnerMessage($"{rightControllerName} (Right) won");
             }
@@ -72,9 +77,30 @@ namespace ConsolePong.View
             DrawField(gameState, leftControllerName, rightControllerName);
         }
 
+        private void SetFps(float fps)
+        {
+            var str = fps.ToString("F0");
+            str.CopyTo(0, _field[_fieldSizeY-1], 0, str.Length);
+        }
+
         private void SetWinnerMessage(string winnerMessage)
         {
+            var startIndex = _fieldSizeX / 2 - winnerMessage.Length / 2;
 
+            for (int y = 1; y < _fieldSizeY-1; y = y+2)
+            {
+                for (int x = 0; x < winnerMessage.Length; x++)
+                {
+                    try
+                    {
+                        _field[y][x+startIndex] = winnerMessage[x];
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        // do nothing
+                    }
+                }
+            }
         }
 
         private void SetPaddle(Paddle paddle)
@@ -108,11 +134,7 @@ namespace ConsolePong.View
             {
                 for (int x = ballXStart; x <= ballXEnd; x++)
                 {
-                    var gameCoords = ToGameCoordinates(x, y);
-                    if ((gameCoords - ball.Position).LengthSquared() < _gameSettings.BallSize * _gameSettings.BallSize * 0.25f)
-                    {
-                        _field[y][x] = BallSymbol;
-                    }
+                    _field[y][x] = BallSymbol;
                 }
             }
         }
@@ -135,10 +157,16 @@ namespace ConsolePong.View
         {
             Console.SetCursorPosition(0, 0);
 
-            //Console.WriteLine($"Fps: {gameState.Fps:F0} Res: {_fieldSizeX}x{_fieldSizeY} Ball: {gameState.Ball.Position.X} {gameState.Ball.Position.Y}");
-            Console.WriteLine(leftControllerName + 
-                              new string(' ', _fieldSizeX + 2 - leftControllerName.Length - rightControllerName.Length) + 
-                              rightControllerName);
+            var fillCharCount = _fieldSizeX + 2 - leftControllerName.Length - rightControllerName.Length;
+            if (fillCharCount < 1)
+            {
+                Console.WriteLine(new string(' ', _fieldSizeX + 2));
+            }
+            else
+            {
+                Console.WriteLine(leftControllerName + new string(' ', fillCharCount) + rightControllerName);
+            }
+
 
             Console.WriteLine(new string(WallSymbol, _fieldSizeX + 2));
 

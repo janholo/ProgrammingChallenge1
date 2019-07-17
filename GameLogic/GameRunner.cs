@@ -23,7 +23,7 @@ namespace ConsolePong.GameLogic
 
                 var rightPaddleVelocity = rightController.Update(gameState, Player.Right);
 
-                gameState.Update(deltaTime, leftPaddleVelocity, rightPaddleVelocity);
+                gameState = gameState.Update(deltaTime, leftPaddleVelocity, rightPaddleVelocity);
 
                 if (gameState.GameResult != GameResult.Pending)
                 {
