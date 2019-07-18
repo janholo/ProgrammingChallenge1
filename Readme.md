@@ -1,8 +1,8 @@
-# AitProgrammingChallenge1
+# ProgrammingChallenge1
 
 ## Purpose
 
-Welcome to the 1. AIT Programming Challenge.
+Welcome to the 1. Programming Challenge.
 The task in this challenge is to implement a `controller` which steers a paddle in the game `pong`.
 A simple controller can be written in only a few lines of code.
 The game is quite simple and has no UI other than the console output.
@@ -37,12 +37,15 @@ Following are the rules of the game:
    Just dont try to hack the game to your advantage via reflection or some other stuff ;-)
 1. To test your controller set your controller as the left or
    right controller (or both) in `Program.cs` and start the app via `dotnet run` or `F5`.
+1. To submit your solution:
+   1. Send your github id to me so i can add you as a contributor
+   1. Push your changes to the master branch of the repo
+
+> All participants work with the same repository, so please only commit changes in your own folder. Keep your changes to the `Program.cs` only locally. Otherwise chaos rises!
 
 ```csharp
 var leftController = new Controller.<YourName>.<YourController>();
 ```
-
-> All participants work with the same repository, so please only commit changes in your own folder. Keep your changes to the `Program.cs` only locally. Otherwise chaos rises!
 
 ## End of the competition
 
