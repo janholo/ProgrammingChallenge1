@@ -28,7 +28,7 @@ namespace ConsolePong
             Console.ReadKey();
 
             var gameSettings = new GameSettings(
-                new Vector2(10.0f, 10.0f),
+                new Vector2(18.0f, 10.0f),
                 60.0f,
                 1.0f,
                 0.1f,

@@ -1,5 +1,7 @@
 # ProgrammingChallenge1
 
+![Game of Pong](./docs/Game.png)
+
 ## Purpose
 
 Welcome to the 1. Programming Challenge.
