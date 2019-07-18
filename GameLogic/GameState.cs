@@ -27,17 +27,44 @@ namespace ConsolePong.GameLogic
             Fps = fps;
         }
 
+        /// <summary>
+        /// All the static settings of the game, they do not change during the run of a game
+        /// </summary>
         public GameSettings GameSettings { get; }
 
+        /// <summary>
+        /// If the game is still running the GameResult is Pending.
+        /// </summary>
         public GameResult GameResult { get; }
 
+        /// <summary>
+        /// The Paddle of the left side of the playing field
+        /// </summary>
         public Paddle LeftPaddle { get; }
+
+
+        /// <summary>
+        /// The Paddle of the right side of the playing field
+        /// </summary>
         public Paddle RightPaddle { get; }
 
+        /// <summary>
+        /// The Ball
+        /// </summary>
         public Ball Ball { get; }
 
+        /// <summary>
+        /// The Fps with which this game is run.
+        /// </summary>
         public float Fps { get; }
         
+        /// <summary>
+        /// Advances the game once step
+        /// </summary>
+        /// <param name="deltaTime">Should be the time between the last Update call and now</param>
+        /// <param name="leftPaddleVelocity">Velocity of the left paddle, should be supplied by a controller</param>
+        /// <param name="rightPaddleVelocity">Velocity of the right paddle, should be supplied by a controller</param>
+        /// <returns></returns>
         public GameState Update(TimeSpan deltaTime, float leftPaddleVelocity, float rightPaddleVelocity)
         {
             if(GameResult != GameResult.Pending)

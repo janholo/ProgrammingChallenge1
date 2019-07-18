@@ -18,6 +18,9 @@ All of the fields of the `GameState` are documented and should be self explanato
 
 Following are the rules of the game:
 
+* The lower left corner of the playing field is coordinate (0,0)
+* Positive x-axis goes to the right
+* Positive y-axis goes to the top
 * The Ball starts in the center of the field and moves towards the right paddle
 * The ball bounces of the top and bottom wall in a 90° angle
 * If the ball hits the left wall the right player wins
