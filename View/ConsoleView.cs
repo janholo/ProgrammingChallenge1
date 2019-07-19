@@ -120,7 +120,6 @@ namespace ConsolePong.View
                     {
                         // do nothing
                     }
-
                 }
             }
         }
@@ -134,7 +133,14 @@ namespace ConsolePong.View
             {
                 for (int x = ballXStart; x <= ballXEnd; x++)
                 {
-                    _field[y][x] = BallSymbol;
+                    try
+                    {
+                        _field[y][x] = BallSymbol;
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        // do nothing
+                    }
                 }
             }
         }
