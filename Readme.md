@@ -42,9 +42,7 @@ Following are the rules of the game:
    Just dont try to hack the game to your advantage via reflection or some other stuff ;-)
 1. To test your controller set your controller as the left or
    right controller (or both) in `Program.cs` and start the app via `dotnet run` or `F5`.
-1. To submit your solution:
-   1. Send your github id to me so i can add you as a contributor
-   1. Push your changes to the master branch of the repo
+1. To submit your solution just send a PR to the Github Repo.
 
 > All participants work with the same repository, so please only commit changes in your own folder. Keep your changes to the `Program.cs` only locally. Otherwise chaos rises!
 
