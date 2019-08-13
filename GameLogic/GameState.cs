@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace ConsolePong.GameLogic
@@ -103,10 +104,12 @@ namespace ConsolePong.GameLogic
             // check left and right wall if game is over
             if (ballPos.X > GameSettings.FieldSize.X - GameSettings.BallSize * 0.5f)
             {
+                Debug.WriteLine($"Left won, RightPaddleCollide (Math.Abs(ballPos.Y - RightPaddle.Position.Y) < (GameSettings.BallSize + GameSettings.PaddleSize.Y) * 0.5f): {BallCollidesWithPaddle(ballPos, RightPaddle)}, BallY: {ballPos.Y}, PaddleY: {RightPaddle.Position.Y}, BallSize: {GameSettings.BallSize}, PaddleSizeY: {GameSettings.PaddleSize.Y}");
                 return (Ball, GameResult.LeftPlayerWon);
             }
             else if (ballPos.X < GameSettings.BallSize * 0.5f)
             {
+                Debug.WriteLine($"Right won, LeftPaddleCollide (Math.Abs(ballPos.Y - LeftPaddle.Position.Y) < (GameSettings.BallSize + GameSettings.PaddleSize.Y) * 0.5f): {BallCollidesWithPaddle(ballPos, LeftPaddle)}, BallY: {ballPos.Y}, PaddleY: {LeftPaddle.Position.Y}, BallSize: {GameSettings.BallSize}, PaddleSizeY: {GameSettings.PaddleSize.Y}");
                 return (Ball, GameResult.RightPlayerWon);
             }
 
