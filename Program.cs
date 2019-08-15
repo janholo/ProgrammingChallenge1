@@ -1,7 +1,7 @@
-﻿using System;
-using System.Numerics;
-using ConsolePong.GameLogic;
+﻿using ConsolePong.GameLogic;
 using ConsolePong.View;
+using System;
+using System.Numerics;
 
 namespace ConsolePong
 {
@@ -30,7 +30,7 @@ namespace ConsolePong
             var gameSettings = new GameSettings(
                 new Vector2(18.0f, 10.0f),
                 60.0f,
-                1.0f,
+                5.0f,
                 0.1f,
                 0.2f,
                 new Vector2(0.2f, 0.5f),
@@ -41,7 +41,7 @@ namespace ConsolePong
 
             var runner = new GameRunner();
 
-            var leftController = new Controller.JanReinhardt.NaiveController();
+            var leftController = new Controller.EikeBraendle.EikesController();
             var rightController = new Controller.JanReinhardt.NaiveController();
             runner.Run(gameSettings, consoleView, leftController, rightController);
 
