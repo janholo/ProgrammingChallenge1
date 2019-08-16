@@ -1,7 +1,7 @@
-﻿using System;
-using System.Numerics;
-using ConsolePong.GameLogic;
+﻿using ConsolePong.GameLogic;
 using ConsolePong.View;
+using System;
+using System.Numerics;
 
 namespace ConsolePong
 {
